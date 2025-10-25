@@ -13,8 +13,14 @@ function ContactList() {
 
   if (isUsersLoading) return <UsersLoadingSkeleton />;
 
+    if (!Array.isArray(allContacts) || allContacts.length === 0) {
+    return <div className="text-center text-slate-400 p-4">No contacts found</div>;
+  }
+
   return (
     <>
+
+    
       {allContacts.map((contact) => (
         <div
           key={contact._id}
