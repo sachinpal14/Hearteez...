@@ -25,20 +25,23 @@ export const useChatStore = create((set, get) => ({
     set({ isUsersLoading: true });
     try {
       const res = await axiosInstance.get("/messages/contacts");
-      set({ allContacts: res.data });
+      set({ allContacts: res.data || [] });
     } catch (error) {
-      toast.error(error.response.data.message);
+      console.error("Error in getAllContacts:", error);
+      toast.error(error.response?.data?.message || "Failed to load contacts");
     } finally {
       set({ isUsersLoading: false });
     }
   },
+
   getMyChatPartners: async () => {
     set({ isUsersLoading: true });
     try {
       const res = await axiosInstance.get("/messages/chats");
-      set({ chats: res.data });
+      set({ chats: res.data || [] });
     } catch (error) {
-      toast.error(error.response.data.message);
+      console.error("Error in getMyChatPartners:", error);
+      toast.error(error.response?.data?.message || "Failed to load chats");
     } finally {
       set({ isUsersLoading: false });
     }
@@ -48,9 +51,10 @@ export const useChatStore = create((set, get) => ({
     set({ isMessagesLoading: true });
     try {
       const res = await axiosInstance.get(`/messages/${userId}`);
-      set({ messages: res.data });
+      set({ messages: res.data || [] });
     } catch (error) {
-      toast.error(error.response?.data?.message || "Something went wrong");
+      console.error("Error in getMessagesByUserId:", error);
+      toast.error(error.response?.data?.message || "Failed to load messages");
     } finally {
       set({ isMessagesLoading: false });
     }
@@ -60,34 +64,24 @@ export const useChatStore = create((set, get) => ({
     const { selectedUser, messages } = get();
     const { authUser } = useAuthStore.getState();
 
-    const tempId = `temp-${Date.now()}`;
-
-    const optimisticMessage = {
-      _id: tempId,
-      senderId: authUser._id,
-      receiverId: selectedUser._id,
-      text: messageData.text,
-      image: messageData.image,
-      createdAt: new Date().toISOString(),
-      isOptimistic: true,
-    };
-
-    // Immediately update the UI by adding the optimistic message
-    set({ messages: [...messages, optimisticMessage] });
+    if (!selectedUser) {
+      toast.error("No user selected");
+      return;
+    }
 
     try {
-      const res = await axiosInstance.post(`/messages/send/${selectedUser._id}`, messageData);
-      
-      // Replace the optimistic message with the real one from the server
-      set({
-        messages: messages.map(msg => 
-          msg._id === tempId ? res.data : msg
-        ),
-      });
+      const res = await axiosInstance.post(
+        `/messages/send/${selectedUser._id}`,
+        messageData
+      );
+
+      // console.log("✅ Message sent:", res.data);
+
+      // Add the real message from server to the list
+      set({ messages: [...messages, res.data] });
     } catch (error) {
-      // Remove optimistic message on failure
-      set({ messages: messages.filter(msg => msg._id !== tempId) });
-      toast.error(error.response?.data?.message || "Something went wrong");
+      console.error("❌ Error sending message:", error);
+      toast.error(error.response?.data?.message || "Failed to send message");
     }
   },
 
@@ -98,7 +92,8 @@ export const useChatStore = create((set, get) => ({
     const socket = useAuthStore.getState().socket;
 
     socket.on("newMessage", (newMessage) => {
-      const isMessageSentFromSelectedUser = newMessage.senderId === selectedUser._id;
+      const isMessageSentFromSelectedUser =
+        newMessage.senderId.toString() === selectedUser._id.toString();
       if (!isMessageSentFromSelectedUser) return;
 
       const currentMessages = get().messages;
@@ -107,7 +102,9 @@ export const useChatStore = create((set, get) => ({
       if (isSoundEnabled) {
         const notificationSound = new Audio("/sounds/notification.mp3");
         notificationSound.currentTime = 0;
-        notificationSound.play().catch((e) => console.log("Audio play failed:", e));
+        notificationSound.play().catch((e) =>
+          console.log("Audio play failed:", e)
+        );
       }
     });
   },
