@@ -25,7 +25,7 @@ export const useChatStore = create((set, get) => ({
     set({ isUsersLoading: true });
     try {
       const res = await axiosInstance.get("/messages/contacts");
-      set({ allContacts: res.data || [] });
+      set({ allContacts: Array.isArray(res.data) ? res.data : [] });
     } catch (error) {
       console.error("Error in getAllContacts:", error);
       toast.error(error.response?.data?.message || "Failed to load contacts");
@@ -38,7 +38,7 @@ export const useChatStore = create((set, get) => ({
     set({ isUsersLoading: true });
     try {
       const res = await axiosInstance.get("/messages/chats");
-      set({ chats: res.data || [] });
+      set({ chats: Array.isArray(res.data) ? res.data : [], });
     } catch (error) {
       console.error("Error in getMyChatPartners:", error);
       toast.error(error.response?.data?.message || "Failed to load chats");
@@ -51,7 +51,7 @@ export const useChatStore = create((set, get) => ({
     set({ isMessagesLoading: true });
     try {
       const res = await axiosInstance.get(`/messages/${userId}`);
-      set({ messages: res.data || [] });
+      set({ messages: Array.isArray(res.data) ? res.data : [], });
     } catch (error) {
       console.error("Error in getMessagesByUserId:", error);
       toast.error(error.response?.data?.message || "Failed to load messages");

@@ -15,6 +15,10 @@ function ChatsList() {
   if (isUsersLoading) return <UsersLoadingSkeleton />;
   if (chats.length === 0) return <NoChatsFound />;
 
+
+
+  console.log("Chats found: ", chats);
+
   return (
     <>
       {chats.map((chat) => (

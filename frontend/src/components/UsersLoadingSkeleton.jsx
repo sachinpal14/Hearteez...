@@ -1,4 +1,6 @@
 function UsersLoadingSkeleton() {
+
+  console.log("Rendering UsersLoadingSkeleton");
   return (
     <div className="space-y-2">
       {[1, 2, 3].map((item) => (

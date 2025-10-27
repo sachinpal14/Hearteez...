@@ -17,6 +17,9 @@ function ContactList() {
     return <div className="text-center text-slate-400 p-4">No contacts found</div>;
   }
 
+
+  console.log("All contacts: ", allContacts);
+
   return (
     <>
 

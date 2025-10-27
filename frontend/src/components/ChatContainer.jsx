@@ -32,6 +32,8 @@ function ChatContainer() {
     }
   }, [messages]);
 
+  console.log("messages in the chat container ",messages)
+
   return (
     <>
       <ChatHeader />
