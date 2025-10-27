@@ -18,7 +18,7 @@ function ContactList() {
   }
 
 
-  // console.log("All contacts: ", allContacts);
+  console.log("All contacts: ", allContacts);
 
   return (
     <>

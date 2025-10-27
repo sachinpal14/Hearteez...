@@ -12,12 +12,17 @@ export const generateToken = (userId, res) => {
   });
 
   res.cookie("jwt", token, {
-    maxAge: 7 * 24 * 60 * 60 * 1000, // MS
-    httpOnly: true, // prevent XSS attacks: cross-site scripting
-    sameSite: "strict", // CSRF attacks
-    secure: ENV.NODE_ENV === "development" ? false : true,
-  });
+    // maxAge: 7 * 24 * 60 * 60 * 1000, // MS
+    // httpOnly: true, // prevent XSS attacks: cross-site scripting
+    // sameSite: "strict", // CSRF attacks
+    // secure: ENV.NODE_ENV === "development" ? false : true,
 
+    httpOnly: true, // secure from JS access
+    secure: ENV.NODE_ENV === "production", // cookie only over HTTPS in production
+    sameSite: ENV.NODE_ENV === "production" ? "none" : "lax", // allow cross-origin cookies
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  });
+  console.log("token in the generate token ", token);
   return token;
 };
 

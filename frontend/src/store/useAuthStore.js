@@ -80,26 +80,65 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
+  // connectSocket: () => {
+  //   const { authUser } = get();
+  //   if (!authUser || get().socket?.connected) return;
+
+  //   const socket = io(BASE_URL, {
+  //       transports: ["websocket"], // prevents polling fallback (mixed content)
+  //     withCredentials: true, // this ensures cookies are sent with the connection
+  //   });
+
+  //   socket.connect();
+
+  //   set({ socket });
+
+  //   // listen for online users event
+  //   socket.on("getOnlineUsers", (userIds) => {
+  //     set({ onlineUsers: userIds });
+  //   });
+  // },
+
+  // disconnectSocket: () => {
+  //   if (get().socket?.connected) get().socket.disconnect();
+  // },
+
+
+
   connectSocket: () => {
-    const { authUser } = get();
-    if (!authUser || get().socket?.connected) return;
+  const { authUser } = get();
+  if (!authUser || get().socket?.connected) return;
 
-    const socket = io(BASE_URL, {
-        transports: ["websocket"], // prevents polling fallback (mixed content)
-      withCredentials: true, // this ensures cookies are sent with the connection
-    });
+  const socket = io(BASE_URL, {
+    transports: ["websocket"],
+    withCredentials: true, // ✅ send cookies during the WS handshake
+    reconnection: true,
+    reconnectionAttempts: 5,
+    reconnectionDelay: 1000,
+  });
 
-    socket.connect();
+  // No need for socket.connect() manually — io() already connects automatically
 
-    set({ socket });
+  set({ socket });
 
-    // listen for online users event
-    socket.on("getOnlineUsers", (userIds) => {
-      set({ onlineUsers: userIds });
-    });
-  },
+  socket.on("connect", () => {
+    console.log("✅ Socket connected:", socket.id);
+  });
 
-  disconnectSocket: () => {
-    if (get().socket?.connected) get().socket.disconnect();
-  },
+  socket.on("getOnlineUsers", (userIds) => {
+    set({ onlineUsers: userIds });
+  });
+
+  socket.on("disconnect", () => {
+    console.log("❌ Socket disconnected");
+  });
+},
+
+disconnectSocket: () => {
+  if (get().socket?.connected) get().socket.disconnect();
+},
+
 }));
+
+
+

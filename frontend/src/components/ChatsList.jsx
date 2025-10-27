@@ -17,7 +17,7 @@ function ChatsList() {
 
 
 
-  // console.log("Chats found: ", chats);
+  console.log("Chats found: ", chats);
 
   return (
     <>
