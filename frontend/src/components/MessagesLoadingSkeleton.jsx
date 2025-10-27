@@ -1,6 +1,6 @@
 function MessagesLoadingSkeleton() {
 
-  console.log("Rendering MessagesLoadingSkeleton");
+  // console.log("Rendering MessagesLoadingSkeleton");
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       {[...Array(6)].map((_, index) => (

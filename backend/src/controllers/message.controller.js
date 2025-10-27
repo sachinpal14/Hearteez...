@@ -88,7 +88,7 @@ export const getChatPartners = async (req, res) => {
       $or: [{ senderId: loggedInUserId }, { receiverId: loggedInUserId }],
     });
 
-    console.log("Messages found: ", messages);
+    // console.log("Messages found: ", messages);
 
     const chatPartnerIds = [
       ...new Set(
