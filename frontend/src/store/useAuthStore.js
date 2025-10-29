@@ -105,22 +105,31 @@ export const useAuthStore = create((set, get) => ({
 
 
 
-  connectSocket: () => {
+connectSocket: () => {
   const { authUser } = get();
+
+  // 🧩 Prevent connecting without a user or if already connected
   if (!authUser || get().socket?.connected) return;
 
+  // 🔐 Get token from authUser or localStorage
+  const token = authUser?.token || localStorage.getItem("token");
+
+  // 🚀 Connect to the backend socket
   const socket = io(BASE_URL, {
-    transports: ["websocket"],
-    withCredentials: true, // ✅ send cookies during the WS handshake
+    transports: ["websocket"], // force WebSocket connection
+    withCredentials: true,     // allow cookies (if used)
+    auth: {
+      token: token,            // ✅ send JWT token manually
+    },
     reconnection: true,
     reconnectionAttempts: 5,
     reconnectionDelay: 1000,
   });
 
-  // No need for socket.connect() manually — io() already connects automatically
-
+  // 🧠 Save socket instance in Zustand store (or wherever you're managing state)
   set({ socket });
 
+  // 🔊 Socket events
   socket.on("connect", () => {
     console.log("✅ Socket connected:", socket.id);
   });
@@ -137,6 +146,7 @@ export const useAuthStore = create((set, get) => ({
 disconnectSocket: () => {
   if (get().socket?.connected) get().socket.disconnect();
 },
+
 
 }));
 
